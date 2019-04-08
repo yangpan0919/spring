@@ -2,6 +2,7 @@ package com.study.designPatterns.strategy;
 
 //价格类：
 public class Price {
+
     //持有一个具体的策略对象
     private MemberStrategy strategy;
     /**
