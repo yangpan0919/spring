@@ -18,7 +18,7 @@ public class ComposeIterator implements Iterator {
         }
         Iterator iterator = stack.peek();
         if (!iterator.hasNext()){
-            stack.pop();
+            stack.pop();    //移除 @MenuItem 类型对应的迭代器  @NullIterator 类型
             return hasNext();
         }else {
             return true;
