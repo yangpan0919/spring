@@ -59,6 +59,21 @@
 			<version>27.1-jre</version>
 		</dependency>
 
+		<!--CloseableHttpClient-->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
+		</dependency>
+
+		<!--fastjson-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.32</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
