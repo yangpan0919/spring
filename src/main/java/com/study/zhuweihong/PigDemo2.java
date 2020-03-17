@@ -4,12 +4,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 
-public class PigDemo {
+public class PigDemo2 {
 
 
     public static void main(String[] args) {
-        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
-        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
         System.out.println(parseDEToNum("einhundertdreiunddreißig"));//eins hundert sechs
         System.out.println(parseDEToNum("einhundertsechs"));//eins hundert sechs
@@ -50,14 +48,9 @@ public class PigDemo {
         return result;
     }
 
-    /**
-     * 解析text 例如: 八小时五十六分
-     * @param text
-     * @return
-     */
-    public static List<String> parseDEToNum2(String text) {
+    public static void parseDEToNum2(String text) {
         List<String> unitKey = new ArrayList<>();
-        List<String> resultList = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
         unitMap.forEach((x, y) -> {
             unitKey.add(x);
         });
@@ -67,69 +60,27 @@ public class PigDemo {
             if (StringUtils.isEmpty(trim)) {
                 continue;
             }
-            resultList.add(trim);
+            temp.add(trim);
 
         }
-        for (int i = 0; i < resultList.size(); i++) {
-            String s = resultList.get(i);
+        for (int i = 0; i < temp.size(); i++) {
+            String s = temp.get(i);
             if (unitKey.contains(s)) {
                 continue;
             }
-            String result = parseDE(s, "");
+            List<Integer> list1 = new ArrayList<>(10);
+            List<Integer> list2 = new ArrayList<>(10);
+            parseDE(s, list1, list2);
+            List<Integer> list = new ArrayList<>(10);
+            changeToNum(list, list1, list2);
+            Collections.sort(list);
 
-            result = parseResult(result);
-            resultList.set(i, result);
-            System.out.println(result);
+
+            System.out.println(list);
+
+
         }
-        return resultList;
 
-    }
-
-    private static String parseResult(String str) {
-
-        String[] s = str.split(" ");
-        for (int i = 1; i < s.length; i++) {
-            String s1 = s[i];
-            if (StringUtils.isEmpty(s)) {
-                continue;
-            }
-            if (s1.equals("zehn") || s1.equals("ßig") || s1.equals("zig")) {
-                if (checkNum(s[i - 1])) {
-                    s[i - 1] = s[i - 1] + s[i];
-                    s[i] = "";
-                }
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length - 1; i++) {
-            String s1 = s[i];
-            if (StringUtils.isEmpty(s)) {
-                continue;
-            }
-            sb.append(s1).append(" ");
-        }
-        sb.append(s[s.length - 1]);
-
-        return sb.toString();
-    }
-
-    /**
-     * 判断是否德语的个位数
-     *
-     * @param num
-     * @return
-     */
-    private static boolean checkNum(String num) {
-        switch (num) {
-            case "hundert":
-                return false;
-            case "tausend":
-                return false;
-            case "Million":
-                return false;
-            default:
-                return true;
-        }
     }
 
 
@@ -220,89 +171,87 @@ public class PigDemo {
             case "und":
                 return parseDE(str.substring(3), result);
             case "nul":
-                return result + "null ";
+                return result + "零";
             case "ein":
                 if (str.length() == 4) {
-                    return result + "eins ";
+                    return result + "一";
                 }
-                return parseDE(str.substring(3), result + "eins ");
+                return parseDE(str.substring(3), result + "一");
             case "zwe":
                 if (str.length() == 4) {
-                    return result + "zwei ";
+                    return result + "二";
                 }
-                return parseDE(str.substring(4), result + "zwei ");
+                return parseDE(str.substring(4), result + "二");
             case "dre":
                 if (str.length() == 4) {
-                    return result + "drei ";
+                    return result + "三";
                 }
-                return parseDE(str.substring(4), result + "drei ");
+                return parseDE(str.substring(4), result + "三");
             case "vie":
                 if (str.length() == 4) {
-                    return result + "vier ";
+                    return result + "四";
                 }
-                return parseDE(str.substring(4), result + "vier ");
+                return parseDE(str.substring(4), result + "四");
             case "Fün":
                 if (str.length() == 4) {
-                    return result + "Fünf ";
+                    return result + "五";
                 }
-                return parseDE(str.substring(4), result + "Fünf ");
+                return parseDE(str.substring(4), result + "五");
             case "sec":
                 if (str.length() == 5) {
-                    return result + "sechs ";
+                    return result + "六";
                 }
-                return parseDE(str.substring(4), result + "sechs ");
+                return parseDE(str.substring(4), result + "六");
             case "sie":
                 if (str.length() == 6) {
-                    return result + "sieben ";
+                    return result + "七";
                 }
                 if (str.startsWith("sieben")) {
-                    return parseDE(str.substring(6), result + "sieben ");
+                    return parseDE(str.substring(6), result + "七");
                 }
-                return parseDE(str.substring(4), result + "sieben ");
+                return parseDE(str.substring(4), result + "七");
             case "ach":
                 if (str.length() == 4) {
-                    return result + "acht ";
+                    return result + "八";
                 }
-                return parseDE(str.substring(4), result + "acht ");
+                return parseDE(str.substring(4), result + "八");
             case "neu":
                 if (str.length() == 4) {
-                    return result + "neun ";
+                    return result + "九";
                 }
-                return parseDE(str.substring(4), result + "neun ");
+                return parseDE(str.substring(4), result + "九");
             case "zeh":
                 if (str.length() == 4) {
-                    return result + "zehn ";
+                    return result + "十";
                 }
-                return parseDE(str.substring(4), result + "zehn ");
+                return parseDE(str.substring(4), result + "十");
             case "elf":
-                return result + "elf ";
+                return result + "十一";
             case "Zwö":
-                return result + "zwölf ";
+                return result + "十二";
             case "zwa":
-                return result + "zwanzig ";
+                return result + "二十";
             case "ßig":
-                return result + "ßig ";
+                return result + "十";
             case "zig":
-                return result + "zig ";
+                return result + "十";
             case "hun":
                 if (str.length() == 7) {
-                    return result + "hundert ";
+                    return result + "百";
                 }
-                return parseDE(str.substring(7), result + "hundert ");
+                return parseDE(str.substring(7), result + "百");
             case "tau":
                 if (str.length() == 7) {
-                    return result + "tausend ";
+                    return result + "千";
                 }
-                return parseDE(str.substring(7), result + "tausend ");
+                return parseDE(str.substring(7), result + "千");
             case "Mil":
-                if (str.equals("Million")) {
-                    return result + "Million ";
-                } else if (str.equals("Millionen")) {
-                    return result + "Millionen ";
+                if (str.equals("Million") || str.equals("Millionen")) {
+                    return result + "百万";
                 } else if (str.startsWith("Millionen")) {
-                    return parseDE(str.substring(9), result + "Millionen ");
+                    return parseDE(str.substring(9), result + "百万");
                 }
-                return parseDE(str.substring(7), result + "Million ");
+                return parseDE(str.substring(7), result + "百万");
             default:
                 return result;
         }
