@@ -11,19 +11,21 @@ public class PigDemo {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
-        System.out.println(parseDEToNum("dreizehneinhalb"));//eins hundert sechs
-        System.out.println(parseDEToNum("einhundertsechs"));//eins hundert sechs
-        System.out.println(parseDEToNum("eintausendeinhundert"));
-        System.out.println(parseDEToNum("einhundertdreizehn"));//eins hundert zehn drei
-        System.out.println(parseDEToNum("elftausendeinhundertelf"));
-        System.out.println(parseDEToNum("zwei"));
-        System.out.println(parseDEToNum("elftausendeinhundertelf"));
-        System.out.println(parseDETime("einhundertsechs"));
-        System.out.println(parseDETime("einhundertdreiunddreißig"));
-        parseDEToNum2("eintausendeinhundert");
-        parseDEToNum2("einhundertdreizehn");//eins hundert zehn drei
-        parseDEToNum2("elftausendeinhundertelf");
-        parseDEToNum2("zwei");
+        System.out.println(changeTimeToSecond("dreizehneinhalb "));
+
+//        System.out.println(parseDEToNum("dreizehneinhalb"));//eins hundert sechs
+//        System.out.println(parseDEToNum("einhundertsechs"));//eins hundert sechs
+//        System.out.println(parseDEToNum("eintausendeinhundert"));
+//        System.out.println(parseDEToNum("einhundertdreizehn"));//eins hundert zehn drei
+//        System.out.println(parseDEToNum("elftausendeinhundertelf"));
+//        System.out.println(parseDEToNum("zwei"));
+//        System.out.println(parseDEToNum("elftausendeinhundertelf"));
+//        System.out.println(parseDETime("einhundertsechs"));
+//        System.out.println(parseDETime("einhundertdreiunddreißig"));
+//        parseDEToNum2("eintausendeinhundert");
+//        parseDEToNum2("einhundertdreizehn");//eins hundert zehn drei
+//        parseDEToNum2("elftausendeinhundertelf");
+//        parseDEToNum2("zwei");
 
 
     }
@@ -31,7 +33,7 @@ public class PigDemo {
     public static double changeTimeToSecond(String text) {
         double result = 0d;
         String[] s = text.split(" ");
-        double temp = 0d;
+        double temp = 1d;
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
             if (StringUtils.isEmpty(s1)) {
@@ -42,15 +44,19 @@ public class PigDemo {
                 temp = parseDEToNum(s1);
                 continue;
             }
-            result += temp * integer;
+            result += (temp * integer);
+
         }
+
         return result;
 
     }
 
     private static Map<String, Double> numMap = new HashMap<>();
 
-    {
+
+    private static Map<String, Integer> unitMap = new HashMap<>();//时间单位
+    static {
         numMap.put("eins", 1d);
         numMap.put("zwei", 2d);
         numMap.put("drei", 3d);
@@ -88,8 +94,6 @@ public class PigDemo {
         unitMap.put("sekunde", 1);
 
     }
-
-    private static Map<String, Integer> unitMap = new HashMap<>();//时间单位
 
     /**
      * 德语数字直接转换成阿拉伯数字
