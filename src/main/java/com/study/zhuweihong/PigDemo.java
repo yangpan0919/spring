@@ -1,17 +1,26 @@
 package com.study.zhuweihong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
 
 public class PigDemo {
 
+    private static Logger loger = LoggerFactory.getLogger(PigDemo.class);
+
 
     public static void main(String[] args) {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
-        System.out.println(changeTimeToSecond("dreizehneinhalb "));
+        System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
+        System.out.println(changeTimeToSecond("700.000 sekunde"));
+        System.out.println(changeTimeToSecond("dreiundfünfzig sekunde"));
+        System.out.println(changeTimeToSecond("eine halbe stunde"));
+        System.out.println(changeTimeToSecond("eine halbe minute"));
+        System.out.println(changeTimeToSecond("2,5 minute"));
 
 //        System.out.println(parseDEToNum("dreizehneinhalb"));//eins hundert sechs
 //        System.out.println(parseDEToNum("einhundertsechs"));//eins hundert sechs
@@ -30,10 +39,17 @@ public class PigDemo {
 
     }
 
+    /**
+     * 该方法只能用来解析，时间段，时间段格式为：时间+单位
+     *
+     * @param text
+     * @return
+     */
     public static double changeTimeToSecond(String text) {
         double result = 0d;
         String[] s = text.split(" ");
-        double temp = 1d;
+        double temp = -1d;
+        int start = 0;//数字解析的开始下标
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
             if (StringUtils.isEmpty(s1)) {
@@ -41,10 +57,31 @@ public class PigDemo {
             }
             Integer integer = unitMap.get(s1);
             if (integer == null) {
-                temp = parseDEToNum(s1);
+                try {
+                    //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
+                    s1 = s1.replaceAll("[.]", "").replace(",", ".");
+
+                    temp = Double.parseDouble(s1);
+                    continue;
+                } catch (NumberFormatException e) {
+                }
+                //不是单位，说明是数字，进行解析
+                if (temp == -1d) {
+                    temp = parseDEToNum(s1);
+                } else if (s1.equals("halbe") && s[i - 1].equals("eine")) {
+                    //类似于半小时之类的存在 eine halbe stunde
+                    temp = 0.5d;
+
+                } else {
+                    loger.error("无法处理的消息类型：" + temp + ":" + s1);
+                }
                 continue;
             }
+            //是单位，temp在上一个循环解析处理了，加到result中
             result += (temp * integer);
+            start = i + 1;
+            temp = -1d;
+
 
         }
 
@@ -56,6 +93,7 @@ public class PigDemo {
 
 
     private static Map<String, Integer> unitMap = new HashMap<>();//时间单位
+
     static {
         numMap.put("eins", 1d);
         numMap.put("zwei", 2d);
@@ -89,9 +127,13 @@ public class PigDemo {
         numMap.put("halb", -0.5d);
 
         unitMap.put("stunden", 3600);
+        unitMap.put("stunde", 3600);
         unitMap.put("viertel", 900);
+        unitMap.put("viertelstunde", 900);
         unitMap.put("minuten", 60);
+        unitMap.put("minute", 60);
         unitMap.put("sekunde", 1);
+        unitMap.put("sekunden", 1);
 
     }
 
@@ -102,9 +144,11 @@ public class PigDemo {
      * @return
      */
     public static double parseDEToNum(String text) {
-
+        //数值 和list2一一对应，例如：1 --> list1(1),list2(0);
         List<Double> list1 = new ArrayList<>(10);
+        //10的n次方
         List<Integer> list2 = new ArrayList<>(10);
+
         parseDE(text, list1, list2);
         List<Double> list = new ArrayList<>(10);
         changeToNum(list, list1, list2);
@@ -243,8 +287,16 @@ public class PigDemo {
                 list.add(i);
             }
         } else if (maxBit == 2) {
-            //数字53
-            double i = Double.parseDouble((list1.get(1).intValue() + "" + list1.get(0)));
+            double i = 0d;
+            if (list2.get(1) == list2.get(0)) {
+                //数字53
+                i = Double.parseDouble((list1.get(1).intValue() + "" + list1.get(0)));
+            } else {
+                //数字十万
+                i = list1.get(0) * power(10, list2.get(0)) * list1.get(1) * power(10, list2.get(1)) * list1.get(2) * power(10, list2.get(2));
+            }
+
+
             list.add(i);
 
         } else if (maxBit == 0) {
@@ -467,13 +519,14 @@ public class PigDemo {
                 }
                 parseDE(str.substring(4), result, num);
                 break;
-            case "Fün":
+            case "fün":
                 result.add(5d);
                 num.add(0);
                 if (str.length() == 4) {
                     return;
                 }
                 parseDE(str.substring(4), result, num);
+                break;
             case "sec":
                 result.add(6d);
                 num.add(0);
@@ -525,7 +578,7 @@ public class PigDemo {
                 }
                 parseDE(str.substring(3), result, num);
                 break;
-            case "Zwö":
+            case "zwö":
                 result.add(12d);
                 num.add(0);
                 if (str.length() == 5) {
