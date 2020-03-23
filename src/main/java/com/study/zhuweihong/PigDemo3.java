@@ -133,7 +133,11 @@ public class PigDemo3 {
         return result;
     }
 
-
+    /**
+     * @param list  需要的结果数字集合
+     * @param list1 对应的具体数字  例如：100 对应的是1
+     * @param list2 对应的位数 例如：100 的对应为2
+     */
     public static void changeToNum(List<Double> list, List<Double> list1, List<Integer> list2) {
         int maxBit = findMaxBit(list2);
         if (maxBit == 1) {
@@ -192,7 +196,12 @@ public class PigDemo3 {
         return power;
     }
 
-
+    /**
+     * 在位数的集合中找到，最大的位数
+     *
+     * @param list 位数的集合
+     * @return
+     */
     public static int findMaxBit(List<Integer> list) {
         if (list.size() == 0) {
             return -1;
@@ -210,10 +219,11 @@ public class PigDemo3 {
 
 
     /**
-     * str 只能值德语的数字
+     * str 只能解析德语的数字
      *
-     * @param str
-     * @param result
+     * @param str 德语的字符串
+     * @param result 对应的具体数字  例如：100 对应的是1
+     * @param num 对应的位数 例如：100 的对应为2
      * @return
      */
     public static void parseDE(String str, List<Double> result, List<Integer> num) {
@@ -269,6 +279,13 @@ public class PigDemo3 {
 
     }
 
+    /**
+     *
+     * @param temp str的前三位字符
+     * @param str  需要解析字符串
+     * @param result 对应的具体数字  例如：100 对应的是1
+     * @param num 对应的位数 例如：100 的对应为2
+     */
     private static void parseDEStepOne(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
             case "fün":
@@ -319,7 +336,13 @@ public class PigDemo3 {
 
         }
     }
-
+    /**
+     *
+     * @param temp str的前三位字符
+     * @param str  需要解析字符串
+     * @param result 对应的具体数字  例如：100 对应的是1
+     * @param num 对应的位数 例如：100 的对应为2
+     */
     private static void parseDEStepTwo(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
             case "zeh":
@@ -367,7 +390,13 @@ public class PigDemo3 {
 
         }
     }
-
+    /**
+     *
+     * @param temp str的前三位字符
+     * @param str  需要解析字符串
+     * @param result 对应的具体数字  例如：100 对应的是1
+     * @param num 对应的位数 例如：100 的对应为2
+     */
     private static void parseDEStepThree(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
             case "zig":
