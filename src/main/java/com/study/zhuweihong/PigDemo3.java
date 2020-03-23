@@ -18,13 +18,14 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
-        System.out.println(changeTimeToSecond("zwei und vier sekunde"));
+        System.out.println(changeTimeToSecond("dreißig sekunden"));
+        System.out.println(changeTimeToSecond("zwei stunden und dreißig sekunden"));
         System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
         System.out.println(changeTimeToSecond("700.000 sekunde"));
         System.out.println(changeTimeToSecond("dreiundfünfzig sekunde"));
         System.out.println(changeTimeToSecond("eine halbe stunde"));
-        System.out.println(changeTimeToSecond("eine halbe minute"));
-        System.out.println(changeTimeToSecond("2,5 minute"));
+//        System.out.println(changeTimeToSecond("eine halbe minute"));
+//        System.out.println(changeTimeToSecond("2,5 minute"));
 
 //        System.out.println(parseDEToNum("dreizehneinhalb"));//eins hundert sechs
 //        System.out.println(parseDEToNum("einhundertsechs"));//eins hundert sechs
@@ -70,18 +71,17 @@ public class PigDemo3 {
                 } catch (NumberFormatException e) {
                 }
                 //不是单位，说明是数字，进行解析
-                if (temp == -1d) {
+                if (s1.equals("und")) {
+                    continue;
+                } else if (temp == -1d) {
                     temp = parseDEToNum(s1);
                 } else if (s1.equals("halbe") && s[i - 1].equals("eine")) {
                     //类似于半小时之类的存在 eine halbe stunde
                     temp = 0.5d;
-
-                } else if (s1.equals("und")) {
-                    continue;
                 } else {
                     // zwei vier stunden   两点四个小时
                     loger.warn("特殊处理的消息类型：" + temp + ":" + s1);
-                    temp += parseDEToNum(s1)/10;
+                    temp += parseDEToNum(s1) / 10;
                 }
                 continue;
             }
@@ -152,8 +152,11 @@ public class PigDemo3 {
                 list.add(i);
             }
         } else if (maxBit == 2) {
-            double i = 0d;
-            if (list2.get(1) == list2.get(0)) {
+            double i;
+            if (list2.get(1) == list2.get(0) && list2.get(1) == list2.get(2)) {
+                //两个半小时
+                i = list1.get(0) + list1.get(1) + list1.get(2);
+            } else if (list2.get(1) == list2.get(0)) {
                 //数字53
                 i = Double.parseDouble((list1.get(1).intValue() + "" + list1.get(0)));
             } else {
@@ -259,6 +262,15 @@ public class PigDemo3 {
                 }
                 parseDE(str.substring(4), result, num);
                 break;
+            default:
+                parseDEStepOne(temp, str, result, num);
+
+        }
+
+    }
+
+    private static void parseDEStepOne(String temp, String str, List<Double> result, List<Integer> num) {
+        switch (temp) {
             case "fün":
                 result.add(5d);
                 num.add(0);
@@ -302,6 +314,14 @@ public class PigDemo3 {
                 }
                 parseDE(str.substring(4), result, num);
                 break;
+            default:
+                parseDEStepTwo(temp, str, result, num);
+
+        }
+    }
+
+    private static void parseDEStepTwo(String temp, String str, List<Double> result, List<Integer> num) {
+        switch (temp) {
             case "zeh":
                 result.add(1d);
                 num.add(10000);
@@ -342,6 +362,14 @@ public class PigDemo3 {
                 }
                 parseDE(str.substring(3), result, num);
                 break;
+            default:
+                parseDEStepThree(temp, str, result, num);
+
+        }
+    }
+
+    private static void parseDEStepThree(String temp, String str, List<Double> result, List<Integer> num) {
+        switch (temp) {
             case "zig":
                 result.add(1d);
                 num.add(1);
@@ -383,6 +411,5 @@ public class PigDemo3 {
             default:
                 return;
         }
-
     }
 }

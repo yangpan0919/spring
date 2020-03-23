@@ -49,7 +49,7 @@ public class PigDemo {
         double result = 0d;
         String[] s = text.split(" ");
         double temp = -1d;
-        int start = 0;//数字解析的开始下标
+//        int start = 0;//数字解析的开始下标
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
             if (StringUtils.isEmpty(s1)) {
@@ -79,7 +79,7 @@ public class PigDemo {
             }
             //是单位，temp在上一个循环解析处理了，加到result中
             result += (temp * integer);
-            start = i + 1;
+//            start = i + 1;
             temp = -1d;
 
 
