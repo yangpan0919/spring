@@ -18,7 +18,7 @@ public class YiDaLi {
     private static Map<String, Integer> unitMap = new HashMap<>();//时间单位
 
     static {
-//        numMap.put("zero", 1d);
+        numMap.put("zero", 0d);
         numMap.put("uno", 1d);
         numMap.put("due", 2d);
         numMap.put("tre", 3d);

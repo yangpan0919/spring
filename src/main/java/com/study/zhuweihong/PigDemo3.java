@@ -61,30 +61,12 @@ public class PigDemo3 {
                 continue;
             }
             Integer integer = unitMap.get(s1);
-            if (integer == null) {
-                try {
-                    //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
-                    s1 = s1.replaceAll("[.]", "").replace(",", ".");
 
-                    temp = Double.parseDouble(s1);
-                    continue;
-                } catch (NumberFormatException e) {
-                }
-                //不是单位，说明是数字，进行解析
-                if (s1.equals("und")) {
-                    continue;
-                } else if (temp == -1d) {
-                    temp = parseDEToNum(s1);
-                } else if (s1.equals("halbe") && s[i - 1].equals("eine")) {
-                    //类似于半小时之类的存在 eine halbe stunde
-                    temp = 0.5d;
-                } else {
-                    // zwei vier stunden   两点四个小时
-                    loger.warn("特殊处理的消息类型：" + temp + ":" + s1);
-                    temp += parseDEToNum(s1) / 10;
-                }
+            if (integer == null) {
+                temp = handleNum(temp, s, i);
                 continue;
             }
+
             //是单位，temp在上一个循环解析处理了，加到result中
             result += (temp * integer);
             temp = -1d;
@@ -93,6 +75,32 @@ public class PigDemo3 {
 
         return result;
 
+    }
+
+    private static double handleNum(double temp, String[] str, int i) {
+        String num = str[i];
+        try {
+            //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
+            num = num.replaceAll("[.]", "").replace(",", ".");
+
+            temp = Double.parseDouble(num);
+            return temp;
+        } catch (NumberFormatException e) {
+        }
+        //不是单位，说明是数字，进行解析
+        if (num.equals("und")) {
+            return temp;
+        } else if (temp == -1d) {
+            temp = parseDEToNum(num);
+        } else if (num.equals("halbe") && str[i - 1].equals("eine")) {
+            //类似于半小时之类的存在 eine halbe stunde
+            temp = 0.5d;
+        } else {
+            // zwei vier stunden   两点四个小时
+            loger.warn("特殊处理的消息类型：" + temp + ":" + num);
+            temp += parseDEToNum(num) / 10;
+        }
+        return temp;
     }
 
 
@@ -221,9 +229,9 @@ public class PigDemo3 {
     /**
      * str 只能解析德语的数字
      *
-     * @param str 德语的字符串
+     * @param str    德语的字符串
      * @param result 对应的具体数字  例如：100 对应的是1
-     * @param num 对应的位数 例如：100 的对应为2
+     * @param num    对应的位数 例如：100 的对应为2
      * @return
      */
     public static void parseDE(String str, List<Double> result, List<Integer> num) {
@@ -280,11 +288,10 @@ public class PigDemo3 {
     }
 
     /**
-     *
-     * @param temp str的前三位字符
-     * @param str  需要解析字符串
+     * @param temp   str的前三位字符
+     * @param str    需要解析字符串
      * @param result 对应的具体数字  例如：100 对应的是1
-     * @param num 对应的位数 例如：100 的对应为2
+     * @param num    对应的位数 例如：100 的对应为2
      */
     private static void parseDEStepOne(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
@@ -336,12 +343,12 @@ public class PigDemo3 {
 
         }
     }
+
     /**
-     *
-     * @param temp str的前三位字符
-     * @param str  需要解析字符串
+     * @param temp   str的前三位字符
+     * @param str    需要解析字符串
      * @param result 对应的具体数字  例如：100 对应的是1
-     * @param num 对应的位数 例如：100 的对应为2
+     * @param num    对应的位数 例如：100 的对应为2
      */
     private static void parseDEStepTwo(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
@@ -390,12 +397,12 @@ public class PigDemo3 {
 
         }
     }
+
     /**
-     *
-     * @param temp str的前三位字符
-     * @param str  需要解析字符串
+     * @param temp   str的前三位字符
+     * @param str    需要解析字符串
      * @param result 对应的具体数字  例如：100 对应的是1
-     * @param num 对应的位数 例如：100 的对应为2
+     * @param num    对应的位数 例如：100 的对应为2
      */
     private static void parseDEStepThree(String temp, String str, List<Double> result, List<Integer> num) {
         switch (temp) {
