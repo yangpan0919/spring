@@ -76,9 +76,9 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("due ore e trenta minuti"));
+        System.out.println(parseYiDaLiNum("due ore trenta minuti"));
         System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
-        System.out.println(parseYiDaLiNum("quattro ore e mezza"));
+        System.out.println(parseYiDaLiNum("quattro ore mezza"));
         System.out.println(parseYiDaLiNum("cinque secondi"));
         System.out.println(parseYiDaLiNum("un minuto"));
         System.out.println(parseYiDaLiNum("un milione di secondi"));
@@ -108,20 +108,20 @@ public class YiDaLi {
             if (StringUtils.isEmpty(s1)) {
                 continue;
             }
-            if (s1.length() == 1) {
-                i++;
-                //需要解析  1200  mille e duecento //Tre ore e mezza 三个半小时
-                double num = parseYiDaLiToNum(s[i]);
-                int index = numList.size() - 1;
-                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
-                    numList.set(index, numList.get(index) + num);
-                } else { //due ore e trenta minuti
-                    numList.add(num);
-                    temp = num;
-                }
-
-                continue;
-            }
+//            if (s1.length() == 1) {
+//                i++;
+//                //需要解析  1200  mille e duecento //Tre ore e mezza 三个半小时
+//                double num = parseYiDaLiToNum(s[i]);
+//                int index = numList.size() - 1;
+//                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
+//                    numList.set(index, numList.get(index) + num);
+//                } else { //due ore e trenta minuti
+//                    numList.add(num);
+//                    temp = num;
+//                }
+//
+//                continue;
+//            }
             if (s1.length() == 2) {
 //                //un
                 temp = 1d;
@@ -131,12 +131,21 @@ public class YiDaLi {
 
             Integer integer = unitMap.get(s1);
             if (integer == null) {
+                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
+                    double num = parseYiDaLiToNum(s[i]);
+                    int index = numList.size() - 1;
+                    numList.set(index, numList.get(index) + num);
+                    continue;
+                }
                 temp = handlerNum(temp, s1, numList);
                 continue;
             }
 
             temp = -1d;
             //说明是时间单位
+            if (unitList.size() == numList.size()) {//un quarto d'ora   兼容 一刻钟
+                continue;
+            }
             unitList.add(integer);
         }
         double result = 0d;
