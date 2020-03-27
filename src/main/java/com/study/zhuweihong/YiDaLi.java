@@ -76,7 +76,7 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("un'ora"));
+        System.out.println(parseYiDaLiNum("due ore e trenta minuti"));
         System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
         System.out.println(parseYiDaLiNum("quattro ore e mezza"));
         System.out.println(parseYiDaLiNum("cinque secondi"));
@@ -113,7 +113,13 @@ public class YiDaLi {
                 //需要解析  1200  mille e duecento //Tre ore e mezza 三个半小时
                 double num = parseYiDaLiToNum(s[i]);
                 int index = numList.size() - 1;
-                numList.set(index, numList.get(index) + num);
+                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
+                    numList.set(index, numList.get(index) + num);
+                } else { //due ore e trenta minuti
+                    numList.add(num);
+                    temp = num;
+                }
+
                 continue;
             }
             if (s1.length() == 2) {
@@ -125,41 +131,13 @@ public class YiDaLi {
 
             Integer integer = unitMap.get(s1);
             if (integer == null) {
-                try {
-                    //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
-                    s1 = s1.replaceAll("[.]", "").replace(",", ".");
-
-                    temp = Double.parseDouble(s1);
-                    continue;
-                } catch (NumberFormatException e) {
-                }
-                //不是单位，说明是数字，进行解析
-                if (temp == -1d) {
-                    temp = parseYiDaLiToNum(s1);
-                    numList.add(temp);
-                } else {
-                    double v = parseYiDaLiToNum(s1);
-                    temp = v > temp ? temp * v : temp + v;// Un milione di ore 一百万个小时 两个数字连得
-                    numList.set(numList.size() - 1, temp);
-                }
+                temp = handlerNum(temp, s1, numList);
                 continue;
             }
 
             temp = -1d;
             //说明是时间单位
             unitList.add(integer);
-//            if (numList.size() > unitList.size()) {//mille duecento secondi 一千两百秒
-//                double num = 0d;
-//                for (int i1 = unitList.size() - 1; i1 < numList.size(); i1++) {
-//
-//                    num += numList.get(i1);
-//                }
-//                numList.set(unitList.size() - 1, num);
-//                for (int i1 = unitList.size(); i1 < numList.size(); i1++) {
-//                    numList.remove(i1);
-//                }
-//
-//            }
         }
         double result = 0d;
         if (unitList.size() == numList.size()) {
@@ -170,6 +148,35 @@ public class YiDaLi {
         }
         loger.error("数字+单位格式不一致" + numList + ":" + unitList);
         return -1d;
+    }
+
+    /**
+     * 处理时间
+     *
+     * @param result  上一个处理的时间
+     * @param str     需要处理的时间字符串
+     * @param numList 存储时间的list
+     * @return
+     */
+    private static double handlerNum(double result, String str, List<Double> numList) {
+        try {
+            //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
+            str = str.replaceAll("[.]", "").replace(",", ".");
+
+            result = Double.parseDouble(str);
+            return result;
+        } catch (NumberFormatException e) {
+        }
+        //不是单位，说明是数字，进行解析
+        if (result == -1d) {
+            result = parseYiDaLiToNum(str);
+            numList.add(result);
+        } else {
+            double v = parseYiDaLiToNum(str);
+            result = v > result ? result * v : result + v;// Un milione di ore 一百万个小时 两个数字连得
+            numList.set(numList.size() - 1, result);
+        }
+        return result;
     }
 
     /**
