@@ -18,7 +18,9 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
-        System.out.println(changeTimeToSecond("dreißig sekunden"));
+        System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
+        System.out.println(changeTimeToSecond("neuneinhalb sekunde"));
+        System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("zwei stunden und dreißig sekunden"));
         System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
         System.out.println(changeTimeToSecond("700.000 sekunde"));

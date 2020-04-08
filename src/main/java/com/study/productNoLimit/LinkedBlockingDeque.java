@@ -48,6 +48,8 @@ import java.util.function.Consumer;
  * 一旦亏空，立即生产
  * LinkedBlockingDeque 为源码直接赋值过来修改的，
  * toString方法有问题；
+ * <p>
+ * 适用于频繁创建大对象，进行提前创建
  */
 public class LinkedBlockingDeque<E extends Item>
         extends AbstractQueue<E>

@@ -103,7 +103,7 @@ public class CircularQueue<E> {
         return false;
     }
 
-    static int temp = 20;
+    static int temp = 1000;
     //注意线程池的数量，测试的时候，数量不够，容易导致，线程池全部等待，死锁
     public static ExecutorService executorService = Executors.newFixedThreadPool(temp * 2);
 
