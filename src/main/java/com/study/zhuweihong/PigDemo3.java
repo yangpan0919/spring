@@ -18,9 +18,10 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
+        System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
+        System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
         System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
         System.out.println(changeTimeToSecond("neuneinhalb sekunde"));
-        System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("zwei stunden und dreißig sekunden"));
         System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
         System.out.println(changeTimeToSecond("700.000 sekunde"));
@@ -94,7 +95,7 @@ public class PigDemo3 {
             return temp;
         } else if (temp == -1d) {
             temp = parseDEToNum(num);
-        } else if (num.equals("halbe") && str[i - 1].equals("eine")) {
+        } else if ((num.equals("halbe") && str[i - 1].equals("eine")) || (num.equals("halben") && str[i - 1].equals("einer"))) {
             //类似于半小时之类的存在 eine halbe stunde
             temp = 0.5d;
         } else {
@@ -253,7 +254,7 @@ public class PigDemo3 {
             case "ein":
                 result.add(1d);
                 num.add(0);
-                if (str.length() == 4 || str.length() == 3) {
+                if (str.length() == 4 || str.length() == 3 || str.length() == 5) {
                     return;
                 }
                 parseDE(str.substring(3), result, num);
@@ -281,6 +282,14 @@ public class PigDemo3 {
                     return;
                 }
                 parseDE(str.substring(4), result, num);
+                break;
+            case "and":
+                result.add(1.5d);
+                num.add(0);
+                if ("anderthalb".equals(str)) {
+                    return;
+                }
+                loger.error("不支持的数字格式：" + str);
                 break;
             default:
                 parseDEStepOne(temp, str, result, num);
