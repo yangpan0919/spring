@@ -73,10 +73,24 @@ public class YiDaLi {
         unitMap.put("secondo", 1);
         unitMap.put("secondi", 1);
 
+        //天
+        unitMap.put("giorno", 86400);
+        unitMap.put("giorni", 86400);
+        //周
+        unitMap.put("settimana", 604800);
+        unitMap.put("settimane", 604800);
+
+        //月 30天
+        unitMap.put("mese", 18144000);
+        unitMap.put("mesi", 18144000);
+        //年 360天/12个月
+        unitMap.put("anno", 31104000);
+        unitMap.put("anni", 31104000);
+
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("due ore trenta minuti"));
+        System.out.println(parseYiDaLiNum("e"));
         System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
         System.out.println(parseYiDaLiNum("quattro ore mezza"));
         System.out.println(parseYiDaLiNum("cinque secondi"));

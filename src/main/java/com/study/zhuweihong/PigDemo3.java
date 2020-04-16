@@ -18,6 +18,7 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
+        System.out.println(changeTimeToSecond("dreizehn komma sechzehn sekunden"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
         System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
@@ -64,6 +65,13 @@ public class PigDemo3 {
                 continue;
             }
             Integer integer = unitMap.get(s1);
+
+            if (s1.equals("komma") && temp != -1) {//有小数点，例如：dreizehn komma sechzehn sekunden
+                i++;
+                double v = handleNum(-1d, s, i);
+                temp = Double.parseDouble((int) temp + "." + (int) v);
+                continue;
+            }
 
             if (integer == null) {
                 temp = handleNum(temp, s, i);
@@ -119,6 +127,25 @@ public class PigDemo3 {
         unitMap.put("minute", 60);
         unitMap.put("sekunde", 1);
         unitMap.put("sekunden", 1);
+        //天
+        unitMap.put("tages", 86400);
+        unitMap.put("tage", 86400);
+        unitMap.put("tag", 86400);
+        //周
+        unitMap.put("woche", 604800);
+        unitMap.put("wochen", 604800);
+
+        //月 30天
+        unitMap.put("monat", 18144000);
+        unitMap.put("monate", 18144000);
+        //年 360天/12个月
+        unitMap.put("jahr", 31104000);
+        unitMap.put("jahre", 31104000);
+        //年 365天
+//        unitMap.put("jahr", 31536000);
+//        unitMap.put("jahre", 31536000);
+        //komma
+
 
     }
 
