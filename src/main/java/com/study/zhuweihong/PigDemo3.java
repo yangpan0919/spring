@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +17,18 @@ public class PigDemo3 {
 
 
     public static void main(String[] args) {
+        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
+        System.out.println(dayOfWeek);
+        String s = "lkjlkjkj";
+        int index = s.indexOf(".");
+        int index1 = s.lastIndexOf(".");
+        if (index != index1) {
+            System.out.println("至少有两个小数点");
+        }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 
-        System.out.println(changeTimeToSecond("dreizehn komma sechzehn sekunden"));//有问题，一点半分钟/一分半钟
+        System.out.println(changeTimeToSecond("anderthalb minuten 100,100,002 sekunden"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
         System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
@@ -61,6 +71,7 @@ public class PigDemo3 {
 
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
+
             if (StringUtils.isEmpty(s1)) {
                 continue;
             }

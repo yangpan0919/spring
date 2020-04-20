@@ -90,14 +90,15 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("e"));
-        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
-        System.out.println(parseYiDaLiNum("quattro ore mezza"));
-        System.out.println(parseYiDaLiNum("cinque secondi"));
-        System.out.println(parseYiDaLiNum("un minuto"));
-        System.out.println(parseYiDaLiNum("un milione di secondi"));
-        System.out.println(parseYiDaLiNum("mille minuti"));
-        System.out.println(parseYiDaLiNum("mille duecento secondi"));
+//        System.out.println(parseYiDaLiNum("e"));
+        System.out.println(parseYiDaLiNum("100.00 minuto"));
+//        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
+//        System.out.println(parseYiDaLiNum("quattro ore mezza"));
+        System.out.println(parseYiDaLiNum("cinque virgola duecento secondi"));
+//        System.out.println(parseYiDaLiNum("un minuto"));
+//        System.out.println(parseYiDaLiNum("un milione di secondi"));
+//        System.out.println(parseYiDaLiNum("mille minuti"));
+//        System.out.println(parseYiDaLiNum("mille duecento secondi"));
     }
 
     //"Mezz'ora"
@@ -142,9 +143,23 @@ public class YiDaLi {
                 numList.add(temp);
                 continue;
             }
+            if (s1.equals("virgola") && temp != -1) {//有小数点，例如：cinque virgola duecento secondi
+                i++;
+                double v = handlerNum(-1d, s[i], new ArrayList());
+                int index = numList.size() - 1;
+                temp = Double.parseDouble(numList.get(index).intValue() + "." + (int) v);
+
+                numList.set(index, temp);
+                continue;
+            }
 
             Integer integer = unitMap.get(s1);
             if (integer == null) {
+
+                if (s1.indexOf(".") != s1.lastIndexOf(".")) {
+                    return -1d;
+                }
+
                 if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
                     double num = parseYiDaLiToNum(s[i]);
                     int index = numList.size() - 1;
@@ -184,9 +199,10 @@ public class YiDaLi {
     private static double handlerNum(double result, String str, List<Double> numList) {
         try {
             //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
-            str = str.replaceAll("[.]", "").replace(",", ".");
+//            str = str.replaceAll("[.]", "").replace(",", ".");
 
             result = Double.parseDouble(str);
+            numList.add(result);
             return result;
         } catch (NumberFormatException e) {
         }
