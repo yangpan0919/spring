@@ -171,11 +171,16 @@ public class PigDemo3 {
         List<Double> list1 = new ArrayList<>(10);
         //10的n次方
         List<Integer> list2 = new ArrayList<>(10);
-
-        parseDE(text, list1, list2);
+        double result = 0;
+        try {
+            parseDE(text, list1, list2);
+        } catch (IndexOutOfBoundsException e) {
+            loger.error("无法解析的数值：" + text, e);
+            return result;
+        }
         List<Double> list = new ArrayList<>(10);
         changeToNum(list, list1, list2);
-        double result = 0;
+
         for (Double integer : list) {
             result += integer;
         }

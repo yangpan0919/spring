@@ -90,12 +90,12 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-//        System.out.println(parseYiDaLiNum("e"));
-        System.out.println(parseYiDaLiNum("100.00 minuto"));
-//        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
+        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
+        System.out.println(parseYiDaLiNum("ventuno secondi"));
+        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
 //        System.out.println(parseYiDaLiNum("quattro ore mezza"));
         System.out.println(parseYiDaLiNum("cinque virgola duecento secondi"));
-//        System.out.println(parseYiDaLiNum("un minuto"));
+        System.out.println(parseYiDaLiNum("uno minuto"));
 //        System.out.println(parseYiDaLiNum("un milione di secondi"));
 //        System.out.println(parseYiDaLiNum("mille minuti"));
 //        System.out.println(parseYiDaLiNum("mille duecento secondi"));
@@ -137,12 +137,7 @@ public class YiDaLi {
 //
 //                continue;
 //            }
-            if (s1.length() == 2) {
-//                //un
-                temp = 1d;
-                numList.add(temp);
-                continue;
-            }
+
             if (s1.equals("virgola") && temp != -1) {//有小数点，例如：cinque virgola duecento secondi
                 i++;
                 double v = handlerNum(-1d, s[i], new ArrayList());
@@ -206,6 +201,12 @@ public class YiDaLi {
             return result;
         } catch (NumberFormatException e) {
         }
+
+        if (str.length() == 2) {
+//                //un
+            numList.add(1d);
+            return 1d;
+        }
         //不是单位，说明是数字，进行解析
         if (result == -1d) {
             result = parseYiDaLiToNum(str);
@@ -242,6 +243,7 @@ public class YiDaLi {
      */
     public static String parseYiDaLiToNumStepTwo(String str) {
         return str.replace("venti", "20")
+                .replace("vent", "20")
                 .replace("trenta", "30")
                 .replace("trent", "30")
                 .replace("quaranta", "40")
@@ -256,11 +258,12 @@ public class YiDaLi {
                 .replace("ottant", "80")
                 .replace("novanta", "90")
                 .replace("novant", "90")
-                .replace("cento", "00")
-                .replace("mille", "000")
-                .replace("mila", "000")
-                .replace("milione", "000000")
-                .replace("milioni", "000000")
+                .replace("cento", "!00")
+                .replace("mille", "!000")
+                .replace("mile", "!000")
+                .replace("mila", "!000")
+                .replace("milione", "!000000")
+                .replace("milioni", "!000000")
 
                 .replace("undici", "11")
                 .replace("dodici", "12")
@@ -280,52 +283,168 @@ public class YiDaLi {
                 .replace("sette", "7")
                 .replace("otto", "8")
                 .replace("nove", "9")
-                .replace("dieci", "0");
+                .replace("dieci", "!0")
+                .replace("uno", "1");
+
+    }
+
+    /**
+     * 处理占位符 ！
+     * 同时处理 一万零一百二十三  之类的拼接数字，
+     * 零太多了，需要确认最大位数
+     *
+     * @param str
+     * @return
+     */
+    private static List<String> claerPlaceholder(String str) {
+        List<String> result = new ArrayList<>(10);
+        String[] arr = str.split("!");
+        List<String> strList = new ArrayList<>(10);
+        for (String s : arr) {
+            if (StringUtils.isEmpty(s)) {
+                continue;
+            }
+            strList.add(s);
+        }
+
+        if (strList.size() < 2) {
+            for (String s : arr) {
+                result.add(s);
+            }
+            return result;
+
+        }
+        List<Integer> list = new ArrayList<>(10);
+        for (String s : strList) {
+            list.add(findCount(s));
+        }
+        List<Integer> linkNumList = linkNum(list, str);
+        int index = 0;
+        for (int i = 0; i < linkNumList.size(); i++) {
+            Integer integer = linkNumList.get(i);
+            StringBuilder sb = new StringBuilder();
+            for (int j = index; j < integer + index; j++) {
+                sb.append(strList.get(j));
+            }
+            index = integer + index;
+            result.add(sb.toString());
+        }
+        return result;
+
+
+    }
+
+    /**
+     * 判断是否0需要拼接
+     *
+     * @param list 分割后数字0的个数
+     * @param str
+     * @return
+     */
+    private static List<Integer> linkNum(List<Integer> list, String str) {
+        List<Integer> result = new ArrayList<>();
+        Integer temp = list.get(0);
+        result.add(1);
+        for (int i = 1; i < list.size(); i++) {
+            int index = result.size() - 1;
+            if (list.get(i) > temp) {
+                result.set(index, result.get(index) + 1);
+            } else if (list.get(i) < temp) {
+                result.add(1);
+            } else {
+                loger.warn("数字解析有问题：" + str);
+            }
+            temp = list.get(i);
+        }
+        return result;
+
+    }
+
+    /**
+     * 找出0的个数
+     *
+     * @param str
+     * @return
+     */
+    private static int findCount(String str) {
+        int result = 0;
+        int index = str.indexOf("0");
+        if (index < 0) {
+            return result;
+        }
+        str = str.substring(index);
+        String[] split = str.split("");
+        for (String s : split) {
+            if ("0".equals(s)) {
+                result++;
+                continue;
+            }
+            break;
+        }
+        return result;
 
     }
 
     /**
      * 将意大利数字解析之后的字符串二次解析
      * 例如：0016 -->116
+     * 10100014
      *
-     * @param str
+     * @param numStr
      * @return
      */
-    private static double parseNum(String str) {
-        if (str.startsWith("0")) {
-            str = "1" + str;
-        }
-        List<StringBuilder> list = new ArrayList<>(5);
-        String[] split = str.split("");
-        int index = 0;//list集合中的最大下标
-        StringBuilder sb = new StringBuilder();
-        sb.append(split[0]);
-        list.add(sb);
+    private static double parseNum(String numStr) {
+        List<String> strList = claerPlaceholder(numStr);
+        List<Double> resultList = new ArrayList<>(10);
 
-        int temp = 0; //上一个非0数字的下标
-        for (int i = 1; i < split.length; i++) {
-            String s = split[i];
-            if (s.equals("0")) {
-                list.set(index, sb.append(s));
-                continue;
+        for (String str : strList) {
+            if (str.startsWith("0")) {
+                str = "1" + str;
             }
-            if (temp == i - 1) {//处理15000中的15
-                temp++;
-                sb.append(s);
-                continue;
-            }
-            sb = new StringBuilder();
-            temp = i;
-            sb.append(s);
+
+            List<StringBuilder> list = new ArrayList<>(5);
+            String[] split = str.split("");
+            int index = 0;//list集合中的最大下标
+            StringBuilder sb = new StringBuilder();
+            sb.append(split[0]);
             list.add(sb);
-            index++;
+
+            int temp = 0; //上一个非0数字的下标
+            for (int i = 1; i < split.length; i++) {
+                String s = split[i];
+                if (s.equals("0")) {
+                    list.set(index, sb.append(s));
+                    continue;
+                }
+                if (temp == i - 1) {//处理15000中的15
+                    temp++;
+                    sb.append(s);
+                    continue;
+                }
+                sb = new StringBuilder();
+                temp = i;
+                sb.append(s);
+                list.add(sb);
+                index++;
+            }
+            double result = 0d;
+            for (StringBuilder stringBuilder : list) {
+                try {
+                    result += Integer.parseInt(stringBuilder.toString());
+                } catch (NumberFormatException e) {
+                    loger.error("parseNum数字解析异常：" + str, e);
+                }
+
+            }
+            resultList.add(result);
+
         }
         double result = 0d;
-        for (StringBuilder stringBuilder : list) {
-            result += Integer.parseInt(stringBuilder.toString());
-
+        for (Double aDouble : resultList) {
+            result += aDouble;
         }
         return result;
+
     }
 
 }
