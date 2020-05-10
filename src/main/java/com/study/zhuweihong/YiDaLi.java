@@ -63,6 +63,7 @@ public class YiDaLi {
 
         unitMap.put("ora", 3600);
         unitMap.put("ore", 3600);
+        unitMap.put("h", 3600);
 
         unitMap.put("quarto", 900);
         unitMap.put("quarti", 900);
@@ -90,15 +91,17 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
-        System.out.println(parseYiDaLiNum("ventuno secondi"));
-        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
-//        System.out.println(parseYiDaLiNum("quattro ore mezza"));
-        System.out.println(parseYiDaLiNum("cinque virgola duecento secondi"));
-        System.out.println(parseYiDaLiNum("uno minuto"));
-//        System.out.println(parseYiDaLiNum("un milione di secondi"));
-//        System.out.println(parseYiDaLiNum("mille minuti"));
-//        System.out.println(parseYiDaLiNum("mille duecento secondi"));
+        System.out.println(parseYiDaLiNum("2 h"));
+        System.out.println(parseYiDaLiNum("2h"));
+//        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
+//        System.out.println(parseYiDaLiNum("ventuno secondi"));
+//        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
+////        System.out.println(parseYiDaLiNum("quattro ore mezza"));
+//        System.out.println(parseYiDaLiNum("cinque virgola duecento secondi"));
+//        System.out.println(parseYiDaLiNum("uno minuto"));
+////        System.out.println(parseYiDaLiNum("un milione di secondi"));
+////        System.out.println(parseYiDaLiNum("mille minuti"));
+////        System.out.println(parseYiDaLiNum("mille duecento secondi"));
     }
 
     //"Mezz'ora"
@@ -111,8 +114,8 @@ public class YiDaLi {
      */
     public static double parseYiDaLiNum(String text) {
 
-        List<Double> numList = new ArrayList();
-        List<Integer> unitList = new ArrayList();
+        List<Double> numList = new ArrayList<>(10);
+        List<Integer> unitList = new ArrayList<>(10);
         //Un quarto d'ora 处理一刻钟的d' 以及Un'ora 一个小时中的链接符'
         String[] s = text.replace("d'", " ").replace("di ", " ").replace("'", " ").split(" ");
 
@@ -123,6 +126,29 @@ public class YiDaLi {
             if (StringUtils.isEmpty(s1)) {
                 continue;
             }
+            //判断是否是2h
+            String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
+
+            if (s1.matches(s2)) {
+                String[] arr = splitUnit(s1);
+                if (arr == null) {
+                    continue;
+                }
+                try {
+                    double v = Double.parseDouble(arr[0]);
+                    Integer integer = unitMap.get(arr[1]);
+                    if (integer == null) {
+                        loger.error("数字解析异常:" + s1);
+                        continue;
+                    }
+                    numList.add(v);
+                    unitList.add(integer);
+                } catch (NumberFormatException e) {
+                    loger.error("数字解析异常:" + s1);
+                }
+                continue;
+            }
+
 //            if (s1.length() == 1) {
 //                i++;
 //                //需要解析  1200  mille e duecento //Tre ore e mezza 三个半小时
@@ -164,7 +190,7 @@ public class YiDaLi {
                 temp = handlerNum(temp, s1, numList);
                 continue;
             }
-
+//时间+单位  时间+单位  把时间+单位当成一轮解析,如果满足,标志位重置为-1,然后进入下一轮
             temp = -1d;
             //说明是时间单位
             if (unitList.size() == numList.size()) {//un quarto d'ora   兼容 一刻钟
@@ -181,6 +207,36 @@ public class YiDaLi {
         }
         loger.error("数字+单位格式不一致" + numList + ":" + unitList);
         return -1d;
+    }
+
+    /**
+     * 拆分数字和单位粘在一起的缩写
+     * @param str
+     * @return
+     */
+    private static String[] splitUnit(String str) {
+        char[] chars = str.toCharArray();
+        int index = -1;
+        StringBuffer sb = new StringBuffer();
+        for (int j = chars.length - 1; j >= 0; j--) {
+            if (chars[j] < 58) {
+                index = j+1;
+                break;
+            }
+        }
+        if (index == -1) {
+            //异常
+            loger.error("解析到异常数据:" + str);
+            return null;
+        }
+        for (int i = index; i < chars.length; i++) {
+            sb.append(chars[i]);
+        }
+
+        String[] result = new String[2];
+        result[0] = str.replace(sb.toString(), "");
+        result[1] = sb.toString();
+        return result;
     }
 
     /**
@@ -208,10 +264,10 @@ public class YiDaLi {
             return 1d;
         }
         //不是单位，说明是数字，进行解析
-        if (result == -1d) {
+        if (result == -1d) {//如果说是数字+单位,就给标识符-1
             result = parseYiDaLiToNum(str);
             numList.add(result);
-        } else {
+        } else {//如果是数字1+数字2+单位,这边就是解析数字2的
             double v = parseYiDaLiToNum(str);
             result = v > result ? result * v : result + v;// Un milione di ore 一百万个小时 两个数字连得
             numList.set(numList.size() - 1, result);

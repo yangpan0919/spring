@@ -27,7 +27,8 @@ public class PigDemo3 {
         }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
-
+        System.out.println(changeTimeToSecond("2e45h"));
+        System.out.println(changeTimeToSecond("2 h"));
         System.out.println(changeTimeToSecond("anderthalb minuten 100,100,002 sekunden"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
         System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
@@ -75,6 +76,29 @@ public class PigDemo3 {
             if (StringUtils.isEmpty(s1)) {
                 continue;
             }
+
+            //判断是否是2h
+            String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
+
+            if (s1.matches(s2)) {
+                String[] arr = splitUnit(s1);
+                if (arr == null) {
+                    continue;
+                }
+                try {
+                    double v = Double.parseDouble(arr[0]);
+                    Integer integer = unitMap.get(arr[1]);
+                    if (integer == null) {
+                        loger.error("数字解析异常:" + s1);
+                        continue;
+                    }
+                    result += (v * integer);
+                } catch (NumberFormatException e) {
+                    loger.error("数字解析异常:" + s1);
+                }
+                continue;
+            }
+
             Integer integer = unitMap.get(s1);
 
             if (s1.equals("komma") && temp != -1) {//有小数点，例如：dreizehn komma sechzehn sekunden
@@ -97,6 +121,36 @@ public class PigDemo3 {
 
         return result;
 
+    }
+
+    /**
+     * 拆分数字和单位粘在一起的缩写
+     * @param str
+     * @return
+     */
+    private static String[] splitUnit(String str) {
+        char[] chars = str.toCharArray();
+        int index = -1;
+        StringBuffer sb = new StringBuffer();
+        for (int j = chars.length - 1; j >= 0; j--) {
+            if (chars[j] < 58) {
+                index = j+1;
+                break;
+            }
+        }
+        if (index == -1) {
+            //异常
+            loger.error("解析到异常数据:" + str);
+            return null;
+        }
+        for (int i = index; i < chars.length; i++) {
+            sb.append(chars[i]);
+        }
+
+        String[] result = new String[2];
+        result[0] = str.replace(sb.toString(), "");
+        result[1] = sb.toString();
+        return result;
     }
 
     private static double handleNum(double temp, String[] str, int i) {
@@ -132,6 +186,7 @@ public class PigDemo3 {
 
         unitMap.put("stunden", 3600);
         unitMap.put("stunde", 3600);
+        unitMap.put("h", 3600);
         unitMap.put("viertel", 900);
         unitMap.put("viertelstunde", 900);
         unitMap.put("minuten", 60);
@@ -230,9 +285,11 @@ public class PigDemo3 {
             list.add(list1.get(0) * power(10, list2.get(0)));
         }
         if (list1.size() > maxBit + 1) {
-            list1 = list1.subList(maxBit + 1, list1.size());
-            list2 = list2.subList(maxBit + 1, list2.size());
-            changeToNum(list, list1, list2);
+            List<Double> list11 = new ArrayList<>(10);
+            List<Integer> list22 = new ArrayList<>(10);
+            list11 = list1.subList(maxBit + 1, list1.size());
+            list22 = list2.subList(maxBit + 1, list2.size());
+            changeToNum(list, list11, list22);
         }
     }
 
