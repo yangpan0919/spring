@@ -64,6 +64,7 @@ public class YiDaLi {
         unitMap.put("ora", 3600);
         unitMap.put("ore", 3600);
         unitMap.put("h", 3600);
+        unitMap.put("m", 60);
 
         unitMap.put("quarto", 900);
         unitMap.put("quarti", 900);
@@ -91,8 +92,14 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseYiDaLiNum("2 h"));
-        System.out.println(parseYiDaLiNum("2h"));
+//        System.out.println(parseYiDaLiNum("1 1/2 h 1m"));
+//        System.out.println(parseYiDaLiNum("1 1/2h 1m"));
+        System.out.println(parseYiDaLiNum("1 2/2 h 1m"));
+        System.out.println(parseYiDaLiNum("1 2/2h 1m"));
+        System.out.println(parseYiDaLiNum("1/2 h 1m"));
+        System.out.println(parseYiDaLiNum("1/2h 1m"));
+        System.out.println(parseYiDaLiNum("2 h 1m"));
+        System.out.println(parseYiDaLiNum("2h 1m"));
 //        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
 //        System.out.println(parseYiDaLiNum("ventuno secondi"));
 //        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
@@ -130,6 +137,7 @@ public class YiDaLi {
             String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
 
             if (s1.matches(s2)) {
+                temp = -1d;
                 String[] arr = splitUnit(s1);
                 if (arr == null) {
                     continue;
@@ -180,6 +188,41 @@ public class YiDaLi {
                 if (s1.indexOf(".") != s1.lastIndexOf(".")) {
                     return -1d;
                 }
+                //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
+                String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
+                if (s1.matches(s3)) {
+                    String[] arr = splitUnit(s1);
+                    if (arr == null) {
+                        temp = -1d;
+                        continue;
+                    }
+                    try {
+                        String[] split = arr[0].split("/");
+
+                        double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
+                        integer = unitMap.get(arr[1]);
+                        if ("".equals(arr[1])) {
+
+                        } else if (integer == null) {
+                            loger.error("数字解析异常:" + s1);
+                            temp = -1d;
+                            continue;
+                        } else {
+                            unitList.add(integer);
+                        }
+
+                        if (temp == -1d) {
+                            numList.add(v);
+                            continue;
+                        }
+                        numList.set(numList.size() - 1, temp + v);
+                        temp = -1d;
+
+                    } catch (NumberFormatException e) {
+                        loger.error("数字解析异常:" + s1);
+                    }
+                    continue;
+                }
 
                 if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
                     double num = parseYiDaLiToNum(s[i]);
@@ -211,6 +254,7 @@ public class YiDaLi {
 
     /**
      * 拆分数字和单位粘在一起的缩写
+     *
      * @param str
      * @return
      */
@@ -220,7 +264,7 @@ public class YiDaLi {
         StringBuffer sb = new StringBuffer();
         for (int j = chars.length - 1; j >= 0; j--) {
             if (chars[j] < 58) {
-                index = j+1;
+                index = j + 1;
                 break;
             }
         }

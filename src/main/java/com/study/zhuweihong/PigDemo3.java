@@ -27,6 +27,15 @@ public class PigDemo3 {
         }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
+        System.out.println(changeTimeToSecond("1 1/2 h 1m"));
+        System.out.println(changeTimeToSecond("1 1/2h 1m"));
+        System.out.println(changeTimeToSecond("1 2/2 h 1m"));
+        System.out.println(changeTimeToSecond("1 2/2h 1m"));
+        System.out.println(changeTimeToSecond("1/2 h 1m"));
+        System.out.println(changeTimeToSecond("1/2h 1m"));
+        System.out.println(changeTimeToSecond("2 h 1m"));
+        System.out.println(changeTimeToSecond("2h 1m"));
+
         System.out.println(changeTimeToSecond("2e45h"));
         System.out.println(changeTimeToSecond("2 h"));
         System.out.println(changeTimeToSecond("anderthalb minuten 100,100,002 sekunden"));//有问题，一点半分钟/一分半钟
@@ -81,6 +90,7 @@ public class PigDemo3 {
             String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
 
             if (s1.matches(s2)) {
+                temp = -1d;
                 String[] arr = splitUnit(s1);
                 if (arr == null) {
                     continue;
@@ -109,6 +119,49 @@ public class PigDemo3 {
             }
 
             if (integer == null) {
+                //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
+                String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
+                if (s1.matches(s3)) {
+                    String[] arr = splitUnit(s1);
+                    if (arr == null) {
+                        temp = -1d;
+                        continue;
+                    }
+                    try {
+                        String[] split = arr[0].split("/");
+
+                        double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
+                        integer = unitMap.get(arr[1]);
+                        //是否有单位
+                        boolean hasUnit = true;
+                        if ("".equals(arr[1])) {
+                            hasUnit = false;
+                        } else if (integer == null) {
+                            loger.error("数字解析异常:" + s1);
+                            temp = -1d;
+                            continue;
+                        }
+
+                        if (temp == -1d) {
+                            if (hasUnit) {
+                                result += v * integer;
+                            } else {
+                                temp = v;
+                            }
+                            continue;
+                        }
+                        temp = temp + v;
+                        if (hasUnit) {
+                            result += temp * integer;
+                            temp = -1d;
+                        }
+
+                    } catch (NumberFormatException e) {
+                        loger.error("数字解析异常:" + s1);
+                    }
+                    continue;
+                }
+
                 temp = handleNum(temp, s, i);
                 continue;
             }
@@ -125,6 +178,7 @@ public class PigDemo3 {
 
     /**
      * 拆分数字和单位粘在一起的缩写
+     *
      * @param str
      * @return
      */
@@ -134,7 +188,7 @@ public class PigDemo3 {
         StringBuffer sb = new StringBuffer();
         for (int j = chars.length - 1; j >= 0; j--) {
             if (chars[j] < 58) {
-                index = j+1;
+                index = j + 1;
                 break;
             }
         }
@@ -187,6 +241,7 @@ public class PigDemo3 {
         unitMap.put("stunden", 3600);
         unitMap.put("stunde", 3600);
         unitMap.put("h", 3600);
+        unitMap.put("m", 60);
         unitMap.put("viertel", 900);
         unitMap.put("viertelstunde", 900);
         unitMap.put("minuten", 60);
