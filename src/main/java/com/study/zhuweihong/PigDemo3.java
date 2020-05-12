@@ -27,7 +27,9 @@ public class PigDemo3 {
         }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
-        System.out.println(changeTimeToSecond("1 1/2 h 1m"));
+        System.out.println(changeTimeToSecond("2 0.5 sekunden"));
+        System.out.println(changeTimeToSecond("2 0,5 sekunden"));
+        System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
         System.out.println(changeTimeToSecond("1 1/2h 1m"));
         System.out.println(changeTimeToSecond("1 2/2 h 1m"));
         System.out.println(changeTimeToSecond("1 2/2h 1m"));
@@ -213,8 +215,14 @@ public class PigDemo3 {
             //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
             num = num.replaceAll("[.]", "").replace(",", ".");
 
-            temp = Double.parseDouble(num);
-            return temp;
+            double aDouble = Double.parseDouble(num);
+            if (temp == -1d) {
+                return aDouble;
+            } else {
+                return temp + aDouble;
+            }
+
+
         } catch (NumberFormatException e) {
         }
         //不是单位，说明是数字，进行解析
