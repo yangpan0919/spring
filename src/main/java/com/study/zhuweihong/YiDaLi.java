@@ -94,7 +94,7 @@ public class YiDaLi {
     public static void main(String[] args) {
 //        System.out.println(parseYiDaLiNum("1 1/2 h 1m"));
 //        System.out.println(parseYiDaLiNum("1 1/2h 1m"));
-        System.out.println(parseYiDaLiNum("1 2/2 h 1m"));
+        System.out.println(parseYiDaLiNum("1 0.5 h 1m"));
         System.out.println(parseYiDaLiNum("1 2/2h 1m"));
         System.out.println(parseYiDaLiNum("1/2 h 1m"));
         System.out.println(parseYiDaLiNum("1/2h 1m"));
@@ -296,9 +296,14 @@ public class YiDaLi {
             //需要判断逗号和点，例如2.5 是否是德语中的写法2,5  或者100000 是否是德语中的 100.000 :是则需要这句，否则不需要
 //            str = str.replaceAll("[.]", "").replace(",", ".");
 
-            result = Double.parseDouble(str);
-            numList.add(result);
-            return result;
+            double temp = Double.parseDouble(str);
+            if (result == -1d) {
+                numList.add(temp);
+            } else {
+                temp = temp +result;
+                numList.set(numList.size() - 1, temp);
+            }
+            return temp;
         } catch (NumberFormatException e) {
         }
 
