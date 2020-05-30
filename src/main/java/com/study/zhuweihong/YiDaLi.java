@@ -120,7 +120,7 @@ public class YiDaLi {
      * @return
      */
     public static double parseYiDaLiNum(String text) {
-
+        text = text.trim();
         List<Double> numList = new ArrayList<>(10);
         List<Integer> unitList = new ArrayList<>(10);
         //Un quarto d'ora 处理一刻钟的d' 以及Un'ora 一个小时中的链接符'
@@ -300,7 +300,7 @@ public class YiDaLi {
             if (result == -1d) {
                 numList.add(temp);
             } else {
-                temp = temp +result;
+                temp = temp + result;
                 numList.set(numList.size() - 1, temp);
             }
             return temp;

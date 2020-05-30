@@ -28,6 +28,7 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
         System.out.println(changeTimeToSecond("halben tag"));
+        System.out.println(changeTimeToSecond("einen halben tag"));
         System.out.println(changeTimeToSecond("2 0,5 sekunden"));
         System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
         System.out.println(changeTimeToSecond("1 1/2h 1m"));
@@ -230,7 +231,8 @@ public class PigDemo3 {
             return temp;
         } else if (temp == -1d) {
             temp = parseDEToNum(num);
-        } else if ((num.equals("halbe") && str[i - 1].equals("eine")) || (num.equals("halben") && str[i - 1].equals("einer"))) {
+        } else if ((num.equals("halbe") || num.equals("halben")) &&
+                (str[i - 1].equals("eine") || str[i - 1].equals("einer") || str[i - 1].equals("einen"))) {
             //类似于半小时之类的存在 eine halbe stunde
             temp = 0.5d;
         } else {
