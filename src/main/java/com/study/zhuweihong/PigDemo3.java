@@ -27,7 +27,7 @@ public class PigDemo3 {
         }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
-        System.out.println(changeTimeToSecond("2 0.5 sekunden"));
+        System.out.println(changeTimeToSecond("halben tag"));
         System.out.println(changeTimeToSecond("2 0,5 sekunden"));
         System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
         System.out.println(changeTimeToSecond("1 1/2h 1m"));
@@ -248,6 +248,9 @@ public class PigDemo3 {
 
         unitMap.put("stunden", 3600);
         unitMap.put("stunde", 3600);
+
+        unitMap.put("halbstundigen", 1800);
+
         unitMap.put("h", 3600);
         unitMap.put("m", 60);
         unitMap.put("viertel", 900);
@@ -344,8 +347,15 @@ public class PigDemo3 {
             list.add(i);
 
         } else if (maxBit == 0) {
-            //单个数字，例如35中的5,或者数字3，一百，一千
-            list.add(list1.get(0) * power(10, list2.get(0)));
+            if (list2.get(0) == 10000) {//单独的数字10
+                list.add(list1.get(0) * power(10, 1));
+            } else if (list1.get(0) == -0.5d) {//0.5 例如：半天  halben tag
+                list.add(0.5d);
+            } else {
+                //单个数字，例如35中的5,或者数字3，一百，一千
+                list.add(list1.get(0) * power(10, list2.get(0)));
+
+            }
         }
         if (list1.size() > maxBit + 1) {
             List<Double> list11 = new ArrayList<>(10);
@@ -400,7 +410,7 @@ public class PigDemo3 {
      * @param num    对应的位数 例如：100 的对应为2
      * @return
      */
-    public static void parseDE(String str, List<Double> result, List<Integer> num) {
+    public static void parseDE(String str, List<Double> result, List<Integer> num) {//对于zehnminütigen  十分钟，需要匹配minütigen，然后说明这个是单位，传递数据，需要threadlocal
         String temp = str.substring(0, 3);
         switch (temp) {
             case "und":

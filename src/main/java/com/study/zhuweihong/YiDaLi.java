@@ -94,12 +94,12 @@ public class YiDaLi {
     public static void main(String[] args) {
 //        System.out.println(parseYiDaLiNum("1 1/2 h 1m"));
 //        System.out.println(parseYiDaLiNum("1 1/2h 1m"));
-        System.out.println(parseYiDaLiNum("1 0.5 h 1m"));
-        System.out.println(parseYiDaLiNum("1 2/2h 1m"));
-        System.out.println(parseYiDaLiNum("1/2 h 1m"));
-        System.out.println(parseYiDaLiNum("1/2h 1m"));
-        System.out.println(parseYiDaLiNum("2 h 1m"));
-        System.out.println(parseYiDaLiNum("2h 1m"));
+        System.out.println(parseYiDaLiNum("3.5 secondi"));
+//        System.out.println(parseYiDaLiNum("1 2/2h 1m"));
+//        System.out.println(parseYiDaLiNum("1/2 h 1m"));
+//        System.out.println(parseYiDaLiNum("1/2h 1m"));
+//        System.out.println(parseYiDaLiNum("2 h 1m"));
+//        System.out.println(parseYiDaLiNum("2h 1m"));
 //        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
 //        System.out.println(parseYiDaLiNum("ventuno secondi"));
 //        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
