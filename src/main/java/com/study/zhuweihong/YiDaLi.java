@@ -94,15 +94,17 @@ public class YiDaLi {
     public static void main(String[] args) {
 //        System.out.println(parseYiDaLiNum("1 1/2 h 1m"));
 //        System.out.println(parseYiDaLiNum("1 1/2h 1m"));
-        System.out.println(parseYiDaLiNum("3.5 secondi"));
+        System.out.println(parseYiDaLiNum("seicentoventinove secondi"));
+        System.out.println(parseYiDaLiNum("sessantaseimilatrecentonovantanove secondi"));
+//        System.out.println(parseYiDaLiNum("3.5 secondi"));
 //        System.out.println(parseYiDaLiNum("1 2/2h 1m"));
 //        System.out.println(parseYiDaLiNum("1/2 h 1m"));
 //        System.out.println(parseYiDaLiNum("1/2h 1m"));
 //        System.out.println(parseYiDaLiNum("2 h 1m"));
 //        System.out.println(parseYiDaLiNum("2h 1m"));
-//        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
-//        System.out.println(parseYiDaLiNum("ventuno secondi"));
-//        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
+        System.out.println(parseYiDaLiNum("diecimilecentoventitre secondi"));
+        System.out.println(parseYiDaLiNum("ventuno secondi"));
+        System.out.println(parseYiDaLiNum("un quarto d'ora"));//没有兼容 一刻钟
 ////        System.out.println(parseYiDaLiNum("quattro ore mezza"));
 //        System.out.println(parseYiDaLiNum("cinque virgola duecento secondi"));
 //        System.out.println(parseYiDaLiNum("uno minuto"));
@@ -432,7 +434,15 @@ public class YiDaLi {
                 sb.append(strList.get(j));
             }
             index = integer + index;
-            result.add(sb.toString());
+            String s = sb.toString();
+            if (i != linkNumList.size() - 1) {
+                while (!s.endsWith("0")) {
+                    strList.set(index, s.substring(s.length() - 1) + strList.get(index));
+                    s = s.substring(0, s.length() - 1);
+                }
+            }
+            result.add(s);
+
         }
         return result;
 
@@ -533,14 +543,39 @@ public class YiDaLi {
                 index++;
             }
             double result = 0d;
-            for (StringBuilder stringBuilder : list) {
+            int zeroCount = findCount(list.get(0).toString());
+            List<Integer> resultTemp = new ArrayList<>();
+            resultTemp.add(Integer.parseInt(list.get(0).toString()));
+            for (int i = 1; i < list.size(); i++) {
+                StringBuilder stringBuilder = list.get(i);
+                int count = findCount(stringBuilder.toString());
                 try {
-                    result += Integer.parseInt(stringBuilder.toString());
+                    if (count > zeroCount) {
+                        //60  6000  六万六
+                        String s = stringBuilder.toString();
+                        s = s.substring(0, s.length() - count);
+                        int i1 = resultTemp.size() - 1;
+                        resultTemp.set(i1, (resultTemp.get(i1) + Integer.parseInt(s)) * power(10, count));
+
+                    } else {
+                        resultTemp.add(Integer.parseInt(stringBuilder.toString()));
+                    }
                 } catch (NumberFormatException e) {
                     loger.error("parseNum数字解析异常：" + str, e);
                 }
-
+                zeroCount = count;
             }
+            for (Integer integer : resultTemp) {
+                result += integer;
+            }
+//            for (StringBuilder stringBuilder : list) {
+//                try {
+//                    result += Integer.parseInt(stringBuilder.toString());
+//                } catch (NumberFormatException e) {
+//                    loger.error("parseNum数字解析异常：" + str, e);
+//                }
+//
+//            }
             resultList.add(result);
 
         }
@@ -552,4 +587,10 @@ public class YiDaLi {
 
     }
 
+    public static int power(int a, int b) {
+        int power = 1;
+        for (int c = 0; c < b; c++)
+            power *= a;
+        return power;
+    }
 }

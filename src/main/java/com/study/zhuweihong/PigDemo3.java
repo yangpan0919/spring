@@ -28,7 +28,9 @@ public class PigDemo3 {
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
 //        System.out.println(changeTimeToSecond("eine minute und neunundzwanzig sekunden"));
-        System.out.println(changeTimeToSecond("neunzehn sekunden"));
+        System.out.println(changeTimeToSecond("sechsundsechzigtausenddreihundertneunundneunzig sekunden"));
+        System.out.println(changeTimeToSecond("sechsundachtzigtausenddreihundertneunundneunzig sekunden"));
+        System.out.println(changeTimeToSecond("dreihundertneunundfünfzig sekunden"));
 //        System.out.println(changeTimeToSecond("2 0,5 sekunden"));
 //        System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
 //        System.out.println(changeTimeToSecond("1 1/2h 1m"));
@@ -358,6 +360,14 @@ public class PigDemo3 {
                 list.add(list1.get(0) * power(10, list2.get(0)));
 
             }
+        } else if (maxBit == 3) {//sechsundsechzigtausenddreihundertneunundneunzig  六十六万三百九十九
+            List<Double> list11 = list1.subList(0, maxBit);
+            List<Integer> list22 = list2.subList(0, maxBit);
+            changeToNum(list, list11, list22);
+            int size = list.size() - 1;
+            list.set(size, list.get(size) * power(10, list2.get(maxBit)));
+        } else {
+            loger.error("出现的特殊情况需要兼容");
         }
         if (list1.size() > maxBit + 1) {
             List<Double> list11 = new ArrayList<>(10);
@@ -495,7 +505,11 @@ public class PigDemo3 {
                 if (str.length() == 5) {
                     return;
                 }
-                parseDE(str.substring(4), result, num);
+                if (str.startsWith("sechs")) {
+                    parseDE(str.substring(5), result, num);
+                } else {
+                    parseDE(str.substring(4), result, num);
+                }
                 break;
             case "sie":
                 result.add(7d);
@@ -631,6 +645,7 @@ public class PigDemo3 {
                 parseDE(str.substring(8), result, num);
                 break;
             default:
+                loger.error("没有匹配到的字符：" + str);
                 return;
         }
     }
