@@ -27,30 +27,30 @@ public class PigDemo3 {
         }
 //        System.out.println(parseDE("einhundertdreiunddreißig", ""));//eins hundert sechs
 //        System.out.println(parseDE("sechzehn", ""));//eins hundert sechs
-        System.out.println(changeTimeToSecond("halben tag"));
-        System.out.println(changeTimeToSecond("einen halben tag"));
-        System.out.println(changeTimeToSecond("2 0,5 sekunden"));
-        System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
-        System.out.println(changeTimeToSecond("1 1/2h 1m"));
-        System.out.println(changeTimeToSecond("1 2/2 h 1m"));
-        System.out.println(changeTimeToSecond("1 2/2h 1m"));
-        System.out.println(changeTimeToSecond("1/2 h 1m"));
-        System.out.println(changeTimeToSecond("1/2h 1m"));
-        System.out.println(changeTimeToSecond("2 h 1m"));
-        System.out.println(changeTimeToSecond("2h 1m"));
-
-        System.out.println(changeTimeToSecond("2e45h"));
-        System.out.println(changeTimeToSecond("2 h"));
-        System.out.println(changeTimeToSecond("anderthalb minuten 100,100,002 sekunden"));//有问题，一点半分钟/一分半钟
-        System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
-        System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
-        System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
-        System.out.println(changeTimeToSecond("neuneinhalb sekunde"));
-        System.out.println(changeTimeToSecond("zwei stunden und dreißig sekunden"));
-        System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
-        System.out.println(changeTimeToSecond("700.000 sekunde"));
-        System.out.println(changeTimeToSecond("dreiundfünfzig sekunde"));
-        System.out.println(changeTimeToSecond("eine halbe stunde"));
+//        System.out.println(changeTimeToSecond("eine minute und neunundzwanzig sekunden"));
+        System.out.println(changeTimeToSecond("neunzehn sekunden"));
+//        System.out.println(changeTimeToSecond("2 0,5 sekunden"));
+//        System.out.println(changeTimeToSecond("2 und 2,5 sekunden"));
+//        System.out.println(changeTimeToSecond("1 1/2h 1m"));
+//        System.out.println(changeTimeToSecond("1 2/2 h 1m"));
+//        System.out.println(changeTimeToSecond("1 2/2h 1m"));
+//        System.out.println(changeTimeToSecond("1/2 h 1m"));
+//        System.out.println(changeTimeToSecond("1/2h 1m"));
+//        System.out.println(changeTimeToSecond("2 h 1m"));
+//        System.out.println(changeTimeToSecond("2h 1m"));
+//
+//        System.out.println(changeTimeToSecond("2e45h"));
+//        System.out.println(changeTimeToSecond("2 h"));
+//        System.out.println(changeTimeToSecond("anderthalb minuten 100,100,002 sekunden"));//有问题，一点半分钟/一分半钟
+//        System.out.println(changeTimeToSecond("anderthalb minuten"));//有问题，一点半分钟/一分半钟
+//        System.out.println(changeTimeToSecond("35 sekunden"));//有问题，einer 没有兼容
+//        System.out.println(changeTimeToSecond("einer halben stunde"));//有问题，einer 没有兼容
+//        System.out.println(changeTimeToSecond("neuneinhalb sekunde"));
+//        System.out.println(changeTimeToSecond("zwei stunden und dreißig sekunden"));
+//        System.out.println(changeTimeToSecond("einhunderttausend sekunde"));
+//        System.out.println(changeTimeToSecond("700.000 sekunde"));
+//        System.out.println(changeTimeToSecond("dreiundfünfzig sekunde"));
+//        System.out.println(changeTimeToSecond("eine halbe stunde"));
 //        System.out.println(changeTimeToSecond("eine halbe minute"));
 //        System.out.println(changeTimeToSecond("2,5 minute"));
 
@@ -325,11 +325,11 @@ public class PigDemo3 {
                 double i = 0d;
                 if (list1.get(1) == -0.5d) {//0.5
                     i = (list1.get(0) + list1.get(1)) * power(10, list2.get(0)) * power(10, list2.get(1));
+                } else if (list2.get(1) == 1 && list2.get(0) == 0) { //二十九 neunundzwanzig
+                    i = list1.get(0) + list1.get(1) * 10;
                 } else {//两百
                     i = list1.get(0) * power(10, list2.get(0)) * power(10, list2.get(1));
                 }
-
-
                 list.add(i);
             }
         } else if (maxBit == 2) {
