@@ -83,17 +83,13 @@ public class PigDemo3 {
         double result = 0d;
         String[] s = text.split(" ");
         double temp = -1d;
-
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
-
             if (StringUtils.isEmpty(s1)) {
                 continue;
             }
-
             //判断是否是2h
             String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
-
             if (s1.matches(s2)) {
                 temp = -1d;
                 String[] arr = splitUnit(s1);
@@ -113,16 +109,13 @@ public class PigDemo3 {
                 }
                 continue;
             }
-
             Integer integer = unitMap.get(s1);
-
             if (s1.equals("komma") && temp != -1) {//有小数点，例如：dreizehn komma sechzehn sekunden
                 i++;
                 double v = handleNum(-1d, s, i);
                 temp = Double.parseDouble((int) temp + "." + (int) v);
                 continue;
             }
-
             if (integer == null) {
                 //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
                 String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
@@ -134,7 +127,6 @@ public class PigDemo3 {
                     }
                     try {
                         String[] split = arr[0].split("/");
-
                         double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
                         integer = unitMap.get(arr[1]);
                         //是否有单位
@@ -160,25 +152,19 @@ public class PigDemo3 {
                             result += temp * integer;
                             temp = -1d;
                         }
-
                     } catch (NumberFormatException e) {
                         loger.error("数字解析异常:" + s1);
                     }
                     continue;
                 }
-
                 temp = handleNum(temp, s, i);
                 continue;
             }
-
             //是单位，temp在上一个循环解析处理了，加到result中
             result += (temp * integer);
             temp = -1d;
-
         }
-
         return result;
-
     }
 
     /**
@@ -335,21 +321,7 @@ public class PigDemo3 {
                 list.add(i);
             }
         } else if (maxBit == 2) {
-            double i;
-            if (list2.get(1) == list2.get(0) && list2.get(1) == list2.get(2)) {
-                //两个半小时
-                i = list1.get(0) + list1.get(1) + list1.get(2);
-            } else if (list2.get(1) == list2.get(0)) {
-                //数字53
-                i = Double.parseDouble((list1.get(1).intValue() + "" + list1.get(0)));
-            } else {
-                //数字十万
-                i = list1.get(0) * power(10, list2.get(0)) * list1.get(1) * power(10, list2.get(1)) * list1.get(2) * power(10, list2.get(2));
-            }
-
-
-            list.add(i);
-
+            handleTwoMaxBit(list, list1, list2);
         } else if (maxBit == 0) {
             if (list2.get(0) == 10000) {//单独的数字10
                 list.add(list1.get(0) * power(10, 1));
@@ -370,12 +342,32 @@ public class PigDemo3 {
             loger.error("出现的特殊情况需要兼容");
         }
         if (list1.size() > maxBit + 1) {
-            List<Double> list11 = new ArrayList<>(10);
-            List<Integer> list22 = new ArrayList<>(10);
-            list11 = list1.subList(maxBit + 1, list1.size());
-            list22 = list2.subList(maxBit + 1, list2.size());
+            List<Double> list11 = list1.subList(maxBit + 1, list1.size());
+            List<Integer> list22 = list2.subList(maxBit + 1, list2.size());
             changeToNum(list, list11, list22);
         }
+    }
+
+    /**
+     * 处理最大位数，在2的数字
+     *
+     * @param list
+     * @param list1
+     * @param list2
+     */
+    private static void handleTwoMaxBit(List<Double> list, List<Double> list1, List<Integer> list2) {
+        double i;
+        if (list2.get(1) == list2.get(0) && list2.get(1) == list2.get(2)) {
+            //两个半小时
+            i = list1.get(0) + list1.get(1) + list1.get(2);
+        } else if (list2.get(1) == list2.get(0)) {
+            //数字53
+            i = Double.parseDouble((list1.get(1).intValue() + "" + list1.get(0)));
+        } else {
+            //数字十万
+            i = list1.get(0) * power(10, list2.get(0)) * list1.get(1) * power(10, list2.get(1)) * list1.get(2) * power(10, list2.get(2));
+        }
+        list.add(i);
     }
 
     /**
@@ -468,19 +460,10 @@ public class PigDemo3 {
                 }
                 parseDE(str.substring(4), result, num);
                 break;
-            case "and":
-                result.add(1.5d);
-                num.add(0);
-                if ("anderthalb".equals(str)) {
-                    return;
-                }
-                loger.error("不支持的数字格式：" + str);
-                break;
             default:
                 parseDEStepOne(temp, str, result, num);
 
         }
-
     }
 
     /**
@@ -540,7 +523,6 @@ public class PigDemo3 {
                 break;
             default:
                 parseDEStepTwo(temp, str, result, num);
-
         }
     }
 
@@ -594,7 +576,6 @@ public class PigDemo3 {
                 break;
             default:
                 parseDEStepThree(temp, str, result, num);
-
         }
     }
 
@@ -621,6 +602,14 @@ public class PigDemo3 {
                     return;
                 }
                 parseDE(str.substring(7), result, num);
+                break;
+            case "and":
+                result.add(1.5d);
+                num.add(0);
+                if ("anderthalb".equals(str)) {
+                    return;
+                }
+                loger.error("不支持的数字格式：" + str);
                 break;
             case "tau":
                 result.add(1d);

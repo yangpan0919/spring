@@ -542,40 +542,7 @@ public class YiDaLi {
                 list.add(sb);
                 index++;
             }
-            double result = 0d;
-            int zeroCount = findCount(list.get(0).toString());
-            List<Integer> resultTemp = new ArrayList<>();
-            resultTemp.add(Integer.parseInt(list.get(0).toString()));
-            for (int i = 1; i < list.size(); i++) {
-                StringBuilder stringBuilder = list.get(i);
-                int count = findCount(stringBuilder.toString());
-                try {
-                    if (count > zeroCount) {
-                        //60  6000  六万六
-                        String s = stringBuilder.toString();
-                        s = s.substring(0, s.length() - count);
-                        int i1 = resultTemp.size() - 1;
-                        resultTemp.set(i1, (resultTemp.get(i1) + Integer.parseInt(s)) * power(10, count));
-
-                    } else {
-                        resultTemp.add(Integer.parseInt(stringBuilder.toString()));
-                    }
-                } catch (NumberFormatException e) {
-                    loger.error("parseNum数字解析异常：" + str, e);
-                }
-                zeroCount = count;
-            }
-            for (Integer integer : resultTemp) {
-                result += integer;
-            }
-//            for (StringBuilder stringBuilder : list) {
-//                try {
-//                    result += Integer.parseInt(stringBuilder.toString());
-//                } catch (NumberFormatException e) {
-//                    loger.error("parseNum数字解析异常：" + str, e);
-//                }
-//
-//            }
+            double result = gerResult(list, str);
             resultList.add(result);
 
         }
@@ -584,7 +551,36 @@ public class YiDaLi {
             result += aDouble;
         }
         return result;
+    }
 
+    private static double gerResult(List<StringBuilder> list, String str) {
+        double result = 0d;
+        int zeroCount = findCount(list.get(0).toString());
+        List<Integer> resultTemp = new ArrayList<>();
+        resultTemp.add(Integer.parseInt(list.get(0).toString()));
+        for (int i = 1; i < list.size(); i++) {
+            StringBuilder stringBuilder = list.get(i);
+            int count = findCount(stringBuilder.toString());
+            try {
+                if (count > zeroCount) {
+                    //60  6000  六万六
+                    String s = stringBuilder.toString();
+                    s = s.substring(0, s.length() - count);
+                    int i1 = resultTemp.size() - 1;
+                    resultTemp.set(i1, (resultTemp.get(i1) + Integer.parseInt(s)) * power(10, count));
+
+                } else {
+                    resultTemp.add(Integer.parseInt(stringBuilder.toString()));
+                }
+            } catch (NumberFormatException e) {
+                loger.error("parseNum数字解析异常：" + str, e);
+            }
+            zeroCount = count;
+        }
+        for (Integer integer : resultTemp) {
+            result += integer;
+        }
+        return result;
     }
 
     public static int power(int a, int b) {
