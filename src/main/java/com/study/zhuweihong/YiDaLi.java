@@ -92,6 +92,7 @@ public class YiDaLi {
     }
 
     public static void main(String[] args) {
+        System.out.println(parseYiDaLiNum("mezzora"));
 //        System.out.println(parseYiDaLiNum("1 1/2 h 1m"));
 //        System.out.println(parseYiDaLiNum("1 1/2h 1m"));
         System.out.println(parseYiDaLiNum("seicentoventinove secondi"));
@@ -129,6 +130,10 @@ public class YiDaLi {
         String[] s = text.replace("d'", " ").replace("di ", " ").replace("'", " ").split(" ");
 
         double temp = -1d;
+
+        if (s.length == 1 && "mezzora".equals(s[0])) {
+            return 1800d;
+        }
 
         for (int i = 0; i < s.length; i++) {
             String s1 = s[i];
