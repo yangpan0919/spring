@@ -74,6 +74,31 @@ public class PigDemo3 {
     }
 
     /**
+     * 是2h 的处理方式
+     *
+     * @param text
+     * @return
+     */
+    private static double parse2H(String text) {
+        String[] arr = splitUnit(text);
+        if (arr == null) {
+            return 0;
+        }
+        try {
+            double v = Double.parseDouble(arr[0]);
+            Integer integer = unitMap.get(arr[1]);
+            if (integer == null) {
+                loger.error("数字解析异常:" + text);
+                return 0;
+            }
+            return (v * integer);
+        } catch (NumberFormatException e) {
+            loger.error("数字解析异常:" + text);
+        }
+        return 0;
+    }
+
+    /**
      * 该方法只能用来解析，时间段，时间段格式为：时间+单位
      *
      * @param text
@@ -92,21 +117,7 @@ public class PigDemo3 {
             String s2 = "^[0-9]+[.]{0,1}[0-9]*[a-z]+$";
             if (s1.matches(s2)) {
                 temp = -1d;
-                String[] arr = splitUnit(s1);
-                if (arr == null) {
-                    continue;
-                }
-                try {
-                    double v = Double.parseDouble(arr[0]);
-                    Integer integer = unitMap.get(arr[1]);
-                    if (integer == null) {
-                        loger.error("数字解析异常:" + s1);
-                        continue;
-                    }
-                    result += (v * integer);
-                } catch (NumberFormatException e) {
-                    loger.error("数字解析异常:" + s1);
-                }
+                result += parse2H(s1);
                 continue;
             }
             Integer integer = unitMap.get(s1);
@@ -120,41 +131,9 @@ public class PigDemo3 {
                 //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
                 String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
                 if (s1.matches(s3)) {
-                    String[] arr = splitUnit(s1);
-                    if (arr == null) {
-                        temp = -1d;
-                        continue;
-                    }
-                    try {
-                        String[] split = arr[0].split("/");
-                        double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
-                        integer = unitMap.get(arr[1]);
-                        //是否有单位
-                        boolean hasUnit = true;
-                        if ("".equals(arr[1])) {
-                            hasUnit = false;
-                        } else if (integer == null) {
-                            loger.error("数字解析异常:" + s1);
-                            temp = -1d;
-                            continue;
-                        }
-
-                        if (temp == -1d) {
-                            if (hasUnit) {
-                                result += v * integer;
-                            } else {
-                                temp = v;
-                            }
-                            continue;
-                        }
-                        temp = temp + v;
-                        if (hasUnit) {
-                            result += temp * integer;
-                            temp = -1d;
-                        }
-                    } catch (NumberFormatException e) {
-                        loger.error("数字解析异常:" + s1);
-                    }
+                    double[] doubles = handlerNum(temp, result, s1);
+                    temp = doubles[0];
+                    result = doubles[1];
                     continue;
                 }
                 temp = handleNum(temp, s, i);
@@ -165,6 +144,56 @@ public class PigDemo3 {
             temp = -1d;
         }
         return result;
+    }
+
+    /**
+     * 处理分数的只要支持数字+空格+1/2+时间单位
+     *
+     * @param temp
+     * @param result
+     * @param text
+     * @return
+     */
+    private static double[] handlerNum(double temp, double result, String text) {
+        double[] data = new double[2];
+        data[0] = temp;
+        data[1] = result;
+        String[] arr = splitUnit(text);
+        if (arr == null) {
+            data[0] = -1d;
+            return data;
+        }
+        try {
+            String[] split = arr[0].split("/");
+            double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
+            Integer integer = unitMap.get(arr[1]);
+            //是否有单位
+            boolean hasUnit = true;
+            if ("".equals(arr[1])) {
+                hasUnit = false;
+            } else if (integer == null) {
+                loger.error("数字解析异常:" + text);
+                data[0] = -1d;
+                return data;
+            }
+
+            if (temp == -1d) {
+                if (hasUnit) {
+                    data[1] += v * integer;
+                } else {
+                    data[0] = v;
+                }
+                return data;
+            }
+            temp = temp + v;
+            if (hasUnit) {
+                data[0] = -1d;
+                data[1] += temp * integer;
+            }
+        } catch (NumberFormatException e) {
+            loger.error("数字解析异常:" + text);
+        }
+        return data;
     }
 
     /**
