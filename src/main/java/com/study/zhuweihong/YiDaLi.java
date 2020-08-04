@@ -117,6 +117,33 @@ public class YiDaLi {
     //"Mezz'ora"
 
     /**
+     * 是2h 的处理方式
+     *
+     * @param text
+     * @return
+     */
+    private static void parse2H(String text, List<Double> numList, List<Integer> unitList) {
+
+        String[] arr = splitUnit(text);
+        if (arr == null) {
+            return;
+        }
+        try {
+            double v = Double.parseDouble(arr[0]);
+            Integer integer = unitMap.get(arr[1]);
+            if (integer == null) {
+                loger.error("数字解析异常:" + text);
+                return;
+            }
+            numList.add(v);
+            unitList.add(integer);
+        } catch (NumberFormatException e) {
+            loger.error("数字解析异常:" + text);
+        }
+        return;
+    }
+
+    /**
      * 将意大利语中的时间段转换成秒
      *
      * @param text
@@ -145,39 +172,9 @@ public class YiDaLi {
 
             if (s1.matches(s2)) {
                 temp = -1d;
-                String[] arr = splitUnit(s1);
-                if (arr == null) {
-                    continue;
-                }
-                try {
-                    double v = Double.parseDouble(arr[0]);
-                    Integer integer = unitMap.get(arr[1]);
-                    if (integer == null) {
-                        loger.error("数字解析异常:" + s1);
-                        continue;
-                    }
-                    numList.add(v);
-                    unitList.add(integer);
-                } catch (NumberFormatException e) {
-                    loger.error("数字解析异常:" + s1);
-                }
+                parse2H(s1, numList, unitList);
                 continue;
             }
-
-//            if (s1.length() == 1) {
-//                i++;
-//                //需要解析  1200  mille e duecento //Tre ore e mezza 三个半小时
-//                double num = parseYiDaLiToNum(s[i]);
-//                int index = numList.size() - 1;
-//                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
-//                    numList.set(index, numList.get(index) + num);
-//                } else { //due ore e trenta minuti
-//                    numList.add(num);
-//                    temp = num;
-//                }
-//
-//                continue;
-//            }
 
             if (s1.equals("virgola") && temp != -1) {//有小数点，例如：cinque virgola duecento secondi
                 i++;
@@ -189,64 +186,10 @@ public class YiDaLi {
                 continue;
             }
 
-            Integer integer = unitMap.get(s1);
-            if (integer == null) {
-
-                if (s1.indexOf(".") != s1.lastIndexOf(".")) {
-                    return -1d;
-                }
-                //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
-                String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
-                if (s1.matches(s3)) {
-                    String[] arr = splitUnit(s1);
-                    if (arr == null) {
-                        temp = -1d;
-                        continue;
-                    }
-                    try {
-                        String[] split = arr[0].split("/");
-
-                        double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
-                        integer = unitMap.get(arr[1]);
-                        if ("".equals(arr[1])) {
-
-                        } else if (integer == null) {
-                            loger.error("数字解析异常:" + s1);
-                            temp = -1d;
-                            continue;
-                        } else {
-                            unitList.add(integer);
-                        }
-
-                        if (temp == -1d) {
-                            numList.add(v);
-                            continue;
-                        }
-                        numList.set(numList.size() - 1, temp + v);
-                        temp = -1d;
-
-                    } catch (NumberFormatException e) {
-                        loger.error("数字解析异常:" + s1);
-                    }
-                    continue;
-                }
-
-                if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
-                    double num = parseYiDaLiToNum(s[i]);
-                    int index = numList.size() - 1;
-                    numList.set(index, numList.get(index) + num);
-                    continue;
-                }
-                temp = handlerNum(temp, s1, numList);
-                continue;
+            if (s1.indexOf(".") != s1.lastIndexOf(".")) {
+                return -1d;
             }
-//时间+单位  时间+单位  把时间+单位当成一轮解析,如果满足,标志位重置为-1,然后进入下一轮
-            temp = -1d;
-            //说明是时间单位
-            if (unitList.size() == numList.size()) {//un quarto d'ora   兼容 一刻钟
-                continue;
-            }
-            unitList.add(integer);
+            temp = parseNum(s1, temp, s, i, numList, unitList);
         }
         double result = 0d;
         if (unitList.size() == numList.size()) {
@@ -257,6 +200,86 @@ public class YiDaLi {
         }
         loger.error("数字+单位格式不一致" + numList + ":" + unitList);
         return -1d;
+    }
+
+    /**
+     * 解析text 内容里面的数据
+     *
+     * @param text
+     * @param temp
+     * @param s
+     * @param i
+     * @param numList
+     * @param unitList
+     * @return
+     */
+    private static double parseNum(String text, double temp, String[] s, int i, List<Double> numList, List<Integer> unitList) {
+        Integer integer = unitMap.get(text);
+        if (integer == null) {
+            //分数的只要支持数字+空格+1/2+时间单位  判断是否为这种格式
+            String s3 = "^[0-9]+[/][0-9]+[a-z]*$";
+            if (text.matches(s3)) {
+                return handlerNum(temp, text, numList, unitList);
+            }
+
+            if (i == s.length - 1) {//以数字结尾的时长  quattro ore e mezza
+                double num = parseYiDaLiToNum(s[i]);
+                int index = numList.size() - 1;
+                numList.set(index, numList.get(index) + num);
+                return temp;
+            }
+            return handlerNum(temp, text, numList);
+        }
+//时间+单位  时间+单位  把时间+单位当成一轮解析,如果满足,标志位重置为-1,然后进入下一轮
+        temp = -1d;
+        //说明是时间单位
+        if (unitList.size() == numList.size()) {//un quarto d'ora   兼容 一刻钟
+            return temp;
+        }
+        unitList.add(integer);
+        return temp;
+    }
+
+    /**
+     * 处理 分数的只要支持数字+空格+1/2+时间单位 类型
+     * @param temp
+     * @param text
+     * @param numList
+     * @param unitList
+     * @return
+     */
+    private static double handlerNum(double temp, String text, List<Double> numList, List<Integer> unitList) {
+        String[] arr = splitUnit(text);
+        if (arr == null) {
+            temp = -1d;
+            return temp;
+        }
+        try {
+            String[] split = arr[0].split("/");
+
+            double v = Double.parseDouble(split[0]) / Double.parseDouble(split[1]);
+            Integer integer = unitMap.get(arr[1]);
+            if ("".equals(arr[1])) {
+
+            } else if (integer == null) {
+                loger.error("数字解析异常:" + text);
+                temp = -1d;
+                return temp;
+            } else {
+                unitList.add(integer);
+            }
+
+            if (temp == -1d) {
+                numList.add(v);
+                return temp;
+            }
+            numList.set(numList.size() - 1, temp + v);
+            temp = -1d;
+
+        } catch (NumberFormatException e) {
+            loger.error("数字解析异常:" + text);
+        }
+        return temp;
     }
 
     /**
